@@ -1,0 +1,30 @@
+
+1.2) Revoir la commande d'unban ( qql pb)
+==> récup la listes des bans pour récup le nom dedans ou erreur car trouve pas id 
+
+
+3) Messages d'erreur
+
+4) owner => db (sylvain)
+couronne du bot, owner bot, wl bot
+
+5) code de récup du bot généré tous les 5h 
+
+6) check si les membres ping dans les commandes existent
+=> sinon erreur :)
+
+7) Ligne 70, erreur pour l'affichage du nb de msg supp (marqueur red)
+
+8) rajouter la personne qui supp les messages dans les logs 
+9) revoir le dmall 
+
+==> exemples de commande : 
+https://probot.io/commands
+
+10) voice and move user a faire correctement 
+
+11) refaire tous les messages des commandes
+
+12) Message ERREUR (ex: &pic if no member ctx.send('Erreur'))
+
+13) Log de Warn 
