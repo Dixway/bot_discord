@@ -8,9 +8,9 @@ class status(commands.Cog):
 
     def __init__(self, client):
         self.client = client
-        self.status = cycle(['BOT GESTION', 'En cours de dev'])
+        self.status = cycle(['En cours de dev .', 'En cours de dev ..', 'En cours de dev ...'])
 
-    @tasks.loop(seconds=3.0)
+    @tasks.loop(seconds=1.0)
     async def change_status(self):
         await self.client.change_presence(activity=discord.Game(next(self.status)))
     

@@ -2,14 +2,33 @@ import discord
 from discord.ext import commands
 import datetime
 from datetime import datetime 
+import time
+
+from discord.ext.commands.core import command 
 
 anti_add = 'off'
+THRESHOLD = 1
+m = []
+time_ = time.time()
 
 class message(commands.Cog):
 
     def __init__(self, client):
         self.client = client
         self.sniped_message = {}
+
+    def antiraid(self, member):
+        global m
+        global time_
+        m.append(member)
+        if time.time() - time_ >= 10.0:
+            time_ = time.time()
+            if len(m) >= THRESHOLD:
+                return True
+            else:
+                return False
+            m = []
+
 
 #Log Message
     @commands.Cog.listener()
@@ -37,7 +56,23 @@ class message(commands.Cog):
         if "discord.gg" in message.content.lower():
             if anti_add == 'on':
                 await message.delete()
-                await self.client.process_commands(message)   
+                await self.client.process_commands(message) 
+
+#Reprendre l'idée de l'antilink pour pouvoir rajouter un paramere 'message' => on/off
+#Si 10 membres join en 15 secondes => détection de raid 
+#Revoir cette commande pour l'améliorer et créer des logs + kick ceux qui join durant un raidd
+    @commands.Cog.listener()
+    async def on_member_join(self, ctx, member):
+        embed = discord.Embed(description = f'Raid en cours {discord.Member.mention} n\'a pas pu rejoindre !', color=discord.Color.red())
+        bool_ = self.antiraid(member)
+        channel = self.client.get_channel(924355480715943936)
+        if bool_ == True :
+            await ctx.guild.kick(discord.Member)
+            await channel.send(embed=embed)
+            print('Raid state: %s' % bool_)
+        else:
+            pass
+
 #Antilink
     @commands.command()
     async def antilink(self, ctx, *, message):
@@ -58,6 +93,8 @@ class message(commands.Cog):
         else:
             await ctx.send('Erreur de syntaxe !')
 
+
+#Refaire les commandes snipe pour que ca fasse par salon et nous le dernier message supp en géneral enregistrer 
 #Snipe
     @commands.command()
     async def snipe(self, ctx):

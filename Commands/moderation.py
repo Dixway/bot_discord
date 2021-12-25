@@ -35,6 +35,8 @@ class Moderation(commands.Cog):
         self.get_server_data(id)["color"] = int(color, 16)
         self.update_file(id)
 
+
+
 #Ban
     @commands.command()
     @commands.has_permissions(ban_members=True)
@@ -61,16 +63,11 @@ class Moderation(commands.Cog):
 #Kick
     @commands.command()
     @commands.has_permissions(kick_members=True)
-    async def kick(self, ctx, member: discord.Member, *, reason=None, message: discord.Message):
+    async def kick(self, ctx, member: discord.Member, *, reason=None):
         if reason == None:
             reason = 'Aucune raison n\'a été fournie !'
         await ctx.send(f'**{member.mention}** a été kick pour : ' + f'`{reason}`')
         await member.kick(reason=reason)
-
-        embed = discord.Embed(description = 'texte', color=discord.Color.red())
-        embed.set_author(f'{message.author.name}#{message.authordiscriminator}',message.author.avatar_url)  
-
-        await ctx.send(embed=embed)
 
 #Role error
     async def role_interaction(self, member, role, ctx):
@@ -97,17 +94,43 @@ class Moderation(commands.Cog):
         await member.remove_roles(role)
         await ctx.send(f'{member.mention} a perdu le role "{role}"')
 
+    
 #Lock
     @commands.command()
     async def lock(self, ctx):
-        await ctx.channel.set_permissions(ctx.guild.default_role, send_messages = False)
+        perms = ctx.channel.overwrites_for(ctx.guild.default_role)
+        perms.send_messages=False
+        await ctx.channel.set_permissions(ctx.guild.default_role, overwrite=perms)
         await ctx.send(ctx.channel.mention + 'est lock')
-                
+
 #Unlock    
     @commands.command()
     async def unlock(self, ctx):
-        await ctx.channel.set_permissions(ctx.guild.default_role, send_messages = True)
+        perms = ctx.channel.overwrites_for(ctx.guild.default_role)
+        perms.send_messages=True
+        await ctx.channel.set_permissions(ctx.guild.default_role, overwrite=perms)
         await ctx.send(ctx.channel.mention + 'est unlock')
+
+#Refaire lock all avec l'update 
+
+#Lockall
+    @commands.command()
+    async def lockall(self, ctx):
+        channels = ctx.guild.channels
+        for channel in channels:
+            if isinstance(channel, discord.TextChannel): 
+                await channel.set_permissions(ctx.guild.default_role, send_messages=False)
+        await ctx.send('Tous les salons ont été lock !')
+
+#Unlockall
+    @commands.command()
+    async def unlockall(self, ctx):
+        channels = ctx.guild.channels
+        for channel in channels:
+            if isinstance(channel, discord.TextChannel): 
+                await channel.set_permissions(ctx.guild.default_role, send_messages=True)
+        await ctx.send('Tous les salons ont été unlock !')
+                
 #Mute
     @commands.command()
     async def mute(self, ctx, member : discord.Member, *, reason = None):
@@ -275,7 +298,7 @@ class Moderation(commands.Cog):
 
         except KeyError: # no warnings
             await ctx.send("Cet utilisateur ne possède aucun sanction !")
-#Webbok
+#Clear Webbok
     @commands.command()
     async def clear_webhooks(self, ctx):
         for webhook in await ctx.guild.webhooks(): 
@@ -316,6 +339,26 @@ class Moderation(commands.Cog):
         embed.set_thumbnail(url=ctx.guild.icon_url)
         
         await ctx.send(embed=embed)
+
+#Refaire le le antieveryone avec l'update
+#Antieveryone
+    @commands.command()
+    async def antieveryone(self, ctx, message=None):
+        if message is not None:
+            if message == 'on':
+                channels = ctx.guild.channels
+                for channel in channels:
+                    if isinstance(channel, discord.TextChannel): 
+                        await channel.set_permissions(ctx.guild.default_role, mention_everyone=False)
+                await ctx.send('Antieveryone activé !')
+            if message == 'off':
+                channels = ctx.guild.channels
+                for channel in channels:
+                    if isinstance(channel, discord.TextChannel): 
+                        await channel.set_permissions(ctx.guild.default_role, mention_everyone=True)
+                await ctx.send('Antieveryone désactivé !')
+        else:
+            await ctx.send('Erreur de syntaxe !')
 
 #Clear
     @commands.command()
